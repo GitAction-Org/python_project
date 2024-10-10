@@ -1,15 +1,20 @@
 version: 2.1
 orbs:
   python: circleci/python@1.0.0
-jobs:
-  publish:
-    executor: python/default
-    steps:
-      - checkout
+
+executors:
+  self_hosted_runner:
+    machine: true
+    resource_class: gitactionorg/circleci 
+
 workflows:
   main:
     jobs:
       - python/test:
+          executor: self_hosted_runner 
           args: '--dev'
           pkg-manager: pipenv
           test-tool: pytest
+          post-steps:
+            - store_artifacts:
+                path: test/test/report.html
