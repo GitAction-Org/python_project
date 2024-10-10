@@ -22,26 +22,26 @@
 
 version: 2.1
 orbs:
-  python: circleci/python@1.0.0  
+  python: circleci/python@1.0.0
 
 executors:
   self_hosted_runner:
     machine: true
-    resource_class: gitactionorg/circleci
+    resource_class: gitactionorg/circleci 
 
 jobs:
-  run_tests:
+  build:
     executor: self_hosted_runner
     steps:
       - checkout
       - python/install-packages:
-          pkg-manager: pipenv  
-      - python/test:
-          test-tool: pytest  
-      - store_artifacts:
-          path: test/test/report.html
-
+          args: pytest
+          pkg-manager: pipenv
+      - run:
+          command: |
+            pipenv run pytest --version
+          name: Test it
 workflows:
   main:
     jobs:
-      - run_tests
+      - build
