@@ -3,24 +3,26 @@ version: 2.1
 orbs:
   python: circleci/python@1.0.0
 
+jobs:
+  custom_python_test:
+    docker:
+      - image: circleci/python:3.8  # Or any appropriate Python version
+    parallelism: 4  # Add parallelism to split the job into 4 parallel containers
+    steps:
+      - checkout
+      - python/install-packages:
+          pkg-manager: pipenv
+          args: --dev
+      - run:
+          name: Run tests in parallel using pytest
+          command: |
+            circleci tests split --split-by=timings pipenv run pytest --junitxml=results.xml
+      - store_test_results:
+          path: results.xml
+      - store_artifacts:
+          path: test/test/report.html
+
 workflows:
   main:
     jobs:
-      - python/test:
-          parallelism: 4  # Add parallelism to split the job into 4 parallel containers
-          args: '--dev'
-          pkg-manager: pipenv
-          test-tool: pytest
-          pre-steps:
-            - checkout
-          post-steps:
-            - store_artifacts:
-                path: test/test/report.html
-          steps:
-            - run:
-                name: Run tests in parallel using pytest
-                command: |
-                  pipenv install --dev
-                  circleci tests split --split-by=timings pytest --junitxml=results.xml
-            - store_test_results:
-                path: results.xml
+      - custom_python_test
