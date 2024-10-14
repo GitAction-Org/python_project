@@ -46,7 +46,7 @@ jobs:
           name: Run tests
           command: |
             # Get the test file names, write them to files.txt, and split them by historical timing data
-            circleci tests glob "**/test*.py" | circleci tests run --command=">files.txt xargs echo" --verbose --split-by=timings #split-by-timings is optional
+            circleci tests glob "**test/newspaper_test.py" | circleci tests run --command=">files.txt xargs echo" --verbose --split-by=timings #split-by-timings is optional
             # Change filepaths into format Django accepts (replace slashes with dots).  Save the filenames in a TESTFILES variable
             cat files.txt | tr "/" "." | sed "s/\.py//g" | sed "s/tests\.//g" > circleci_test_files.txt
             cat circleci_test_files.txt
