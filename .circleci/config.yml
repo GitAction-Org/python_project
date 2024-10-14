@@ -1,43 +1,26 @@
 version: 2.1
+
 orbs:
   python: circleci/python@1.0.0
-
-# executors:
-#   self_hosted_runner:
-#     machine: true
-#     resource_class: gitactionorg/circleci 
 
 workflows:
   main:
     jobs:
       - python/test:
-          # executor: self_hosted_runner 
+          parallelism: 4  # Add parallelism to split the job into 4 parallel containers
           args: '--dev'
           pkg-manager: pipenv
           test-tool: pytest
+          pre-steps:
+            - checkout
           post-steps:
             - store_artifacts:
                 path: test/test/report.html
-
-
-# version: 2.1
-# orbs:
-#   python: circleci/python@1.0.0
-
-# executors:
-#   self_hosted_runner:
-#     machine: true
-#     resource_class: gitactionorg/circleci 
-
-# jobs:
-#   build:
-#     executor: self_hosted_runner
-#     steps:
-#       - checkout
-#       - python/install-packages:
-#           args: pytest
-#           pkg-manager: pipenv
-# workflows:
-#   main:
-#     jobs:
-#       - build
+          steps:
+            - run:
+                name: Run tests in parallel using pytest
+                command: |
+                  pipenv install --dev
+                  circleci tests split --split-by=timings pytest --junitxml=results.xml
+            - store_test_results:
+                path: results.xml
