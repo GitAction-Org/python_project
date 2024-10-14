@@ -1,29 +1,63 @@
+# version: 2.1
+
+# orbs:
+#   python: circleci/python@1.0.0
+
+# jobs:
+#   custom_python_test:
+#     docker:
+#       - image: circleci/python:3.8  # Or any appropriate Python version
+#     parallelism: 4  # Add parallelism to split the job into 4 parallel containers
+#     steps:
+#       - checkout
+#       - python/install-packages:
+#           pkg-manager: pipenv
+#           args: --dev
+#       - run:
+#           name: Run tests in parallel using pytest
+#           command: |
+#             pipenv run pytest --maxfail=1 --disable-warnings --junitxml=results.xml \
+#               $(circleci tests split --split-by=timings)
+#       - store_test_results:
+#           path: results.xml
+#       - store_artifacts:
+#           path: test/test/report.html
+
+# workflows:
+#   main:
+#     jobs:
+#       - custom_python_test
+
+
 version: 2.1
 
 orbs:
   python: circleci/python@1.0.0
 
 jobs:
-  custom_python_test:
+  build:
     docker:
-      - image: circleci/python:3.8  # Or any appropriate Python version
-    parallelism: 4  # Add parallelism to split the job into 4 parallel containers
+      - image: cimg/python:3.12.0  # Updated Python image version
+    parallelism: 4  # Same parallelism
+    resource_class: large  # Updated resource class
     steps:
-      - checkout
-      - python/install-packages:
-          pkg-manager: pipenv
-          args: --dev
+      - checkout  # Ensure to check out the code first
       - run:
-          name: Run tests in parallel using pytest
+          name: Run tests
           command: |
-            pipenv run pytest --maxfail=1 --disable-warnings --junitxml=results.xml \
-              $(circleci tests split --split-by=timings)
+            # Get the test file names, write them to files.txt, and split them by historical timing data
+            circleci tests glob "**/test*.py" | circleci tests run --command=">files.txt xargs echo" --verbose --split-by=timings #split-by-timings is optional
+            # Change filepaths into format Django accepts (replace slashes with dots).  Save the filenames in a TESTFILES variable
+            cat files.txt | tr "/" "." | sed "s/\.py//g" | sed "s/tests\.//g" > circleci_test_files.txt
+            cat circleci_test_files.txt
+            TESTFILES=$(cat circleci_test_files.txt)
+            # Run the tests (TESTFILES) with the reformatted test file names
+            pipenv run coverage run manage.py test --parallel=8 --verbosity=2 $TESTFILES
+
       - store_test_results:
-          path: results.xml
-      - store_artifacts:
-          path: test/test/report.html
+          path: test-results  # Storing test results
 
 workflows:
   main:
     jobs:
-      - custom_python_test
+      - build
