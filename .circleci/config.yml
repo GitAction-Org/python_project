@@ -62,6 +62,12 @@
 #     jobs:
 #       - build
 #----------------------------------
+
+version: 2.1
+
+orbs:
+  python: circleci/python@1.0.0
+
 jobs:
   build:
     docker:
@@ -73,7 +79,7 @@ jobs:
           name: Run tests
           command: |
             # Get the test file names, write them to files.txt, and split them by historical timing data
-            circleci tests glob "**test/newspaper_test.py" | circleci tests run --command=">files.txt xargs echo" --verbose --split-by=timings # Optional split by timings
+            circleci tests glob "test/newspaper_test.py" | circleci tests run --command=">files.txt xargs echo" --verbose --split-by=timings # Optional split by timings
             # Save test file names to a variable
             TESTFILES=$(cat files.txt)
             # Run the tests with pytest and coverage
@@ -81,3 +87,12 @@ jobs:
 
       - store_test_results:
           path: test-results
+
+
+workflows:
+  main:
+    jobs:
+      - build
+
+
+
