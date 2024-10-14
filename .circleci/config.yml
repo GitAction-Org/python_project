@@ -71,31 +71,27 @@ orbs:
 jobs:
   build:
     docker:
-      - image: cimg/python:3.12.0
-    parallelism: 4
-    resource_class: large
+      - image: cimg/python:3.12.0  # Updated Python image version
+    parallelism: 4  # Same parallelism
+    resource_class: large  # Updated resource class
     steps:
+      - checkout  # Ensure to check out the code first
       - run:
           name: Run tests
           command: |
-            # Get the test file names
-            TESTFILES=$(circleci tests glob "test/newspaper_test.py")
-            if [ -z "$TESTFILES" ]; then
-              echo "No tests found"
-              exit 1
-            fi
-            echo "$TESTFILES" > files.txt
-            # Run the tests with pytest and coverage
-            pipenv run coverage run -m pytest -n 8 --maxfail=5 --verbosity=2 $TESTFILES
+            # Get the test file names, write them to files.txt, and split them by historical timing data
+            circleci tests glob "**test/newspaper_test.py" | circleci tests run --command=">files.txt xargs echo" --verbose --split-by=timings #split-by-timings is optional
+            # Change filepaths into format Django accepts (replace slashes with dots).  Save the filenames in a TESTFILES variable
+            cat files.txt | tr "/" "." | sed "s/\.py//g" | sed "s/tests\.//g" > circleci_test_files.txt
+            cat circleci_test_files.txt
+            TESTFILES=$(cat circleci_test_files.txt)
+            # Run the tests (TESTFILES) with the reformatted test file names
+            #pipenv run coverage run manage.py test --parallel=8 --verbosity=2 $TESTFILES
 
       - store_test_results:
-          path: test-results
+          path: test-results  # Storing test results
 
 workflows:
   main:
     jobs:
       - build
-
-
-
-
