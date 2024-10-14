@@ -39,7 +39,7 @@ jobs:
       #     command: pipenv run coverage xml  # Generates coverage.xml for reporting
 
       - store_test_results:
-          path: test-results
+          path: coverage.xml
 
       - store_artifacts:
           path: test/test/report.html
