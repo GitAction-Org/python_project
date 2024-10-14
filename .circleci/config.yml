@@ -81,6 +81,10 @@ jobs:
       - run:
           name: Install dependencies
           command: pipenv install --dev  # Install all dev dependencies including coverage
+      - run:
+          name: List installed packages
+          command: pipenv run pip list  # This will help confirm if coverage is installed
+
 
       - run:
           name: Run tests
