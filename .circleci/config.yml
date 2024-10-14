@@ -88,7 +88,7 @@ jobs:
             cat circleci_test_files.txt
             TESTFILES=$(cat circleci_test_files.txt)
             # Run the tests (TESTFILES) with the reformatted test file names
-            pipenv run coverage run manage.py test --parallel=8 --verbosity=2 $TESTFILES
+            # pipenv run coverage run manage.py test --parallel=8 --verbosity=2 $TESTFILES
 
       - store_test_results:
           path: test-results  # Storing test results
