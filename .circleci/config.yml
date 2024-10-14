@@ -68,17 +68,19 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/python:3.12.0
+      - image: cimg/python:3.12.0  # Use Python 3.12 image
     parallelism: 4
     resource_class: large
     steps:
       - checkout
 
       - run:
+          name: Install pipenv
+          command: pip install pipenv  # Install pipenv if not already installed
+
+      - run:
           name: Install dependencies
-          command: |
-            pip install pipenv
-            pipenv install --dev  # Install development dependencies
+          command: pipenv install --dev  # Install all dev dependencies including coverage
 
       - run:
           name: Run tests
