@@ -16,7 +16,8 @@ jobs:
       - run:
           name: Run tests in parallel using pytest
           command: |
-            circleci tests split --split-by=timings pipenv run pytest --junitxml=results.xml
+            pipenv run pytest --maxfail=1 --disable-warnings --junitxml=results.xml \
+              $(circleci tests split --split-by=timings)
       - store_test_results:
           path: results.xml
       - store_artifacts:
