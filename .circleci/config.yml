@@ -106,4 +106,4 @@ jobs:
           path: test-results
 
       - store_artifacts:
-          path: coverage.xml
+          path: test/test/report.html
