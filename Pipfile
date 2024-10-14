@@ -1,3 +1,6 @@
+[packages]
+requests = "*"
+
 [dev-packages]
 pytest = "*"
 pytest-cov = "*"
