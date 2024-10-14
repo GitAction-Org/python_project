@@ -32,14 +32,14 @@ jobs:
             # Run pytest with coverage and parallelization (pytest-xdist)
             cat test_files.txt
             TESTFILES=$(cat test_files.txt)
-            pipenv run coverage run -m pytest -n 8 --maxfail=1 --verbose $TESTFILES
+            pipenv run coverage run -m pytest -n 8 --maxfail=1 --verbose $TESTFILES --junitxml=test-results/junit.xml
 
       # - run:
       #     name: Generate coverage report
       #     command: pipenv run coverage xml  # Generates coverage.xml for reporting
 
       - store_test_results:
-          path: coverage.xml
+          path: test-results
 
       - store_artifacts:
           path: test/test/report.html
