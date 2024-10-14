@@ -1,68 +1,4 @@
-# version: 2.1
-
-# orbs:
-#   python: circleci/python@1.0.0
-
-# jobs:
-#   custom_python_test:
-#     docker:
-#       - image: circleci/python:3.8  # Or any appropriate Python version
-#     parallelism: 4  # Add parallelism to split the job into 4 parallel containers
-#     steps:
-#       - checkout
-#       - python/install-packages:
-#           pkg-manager: pipenv
-#           args: --dev
-#       - run:
-#           name: Run tests in parallel using pytest
-#           command: |
-#             pipenv run pytest --maxfail=1 --disable-warnings --junitxml=results.xml \
-#               $(circleci tests split --split-by=timings)
-#       - store_test_results:
-#           path: results.xml
-#       - store_artifacts:
-#           path: test/test/report.html
-
-# workflows:
-#   main:
-#     jobs:
-#       - custom_python_test
-
-#-----excute-----------------------------------------------
-# version: 2.1
-
-# orbs:
-#   python: circleci/python@1.0.0
-
-# jobs:
-#   build:
-#     docker:
-#       - image: cimg/python:3.12.0  # Updated Python image version
-#     parallelism: 4  # Same parallelism
-#     resource_class: large  # Updated resource class
-#     steps:
-#       - checkout  # Ensure to check out the code first
-#       - run:
-#           name: Run tests
-#           command: |
-#             # Get the test file names, write them to files.txt, and split them by historical timing data
-#             circleci tests glob "**test/newspaper_test.py" | circleci tests run --command=">files.txt xargs echo" --verbose --split-by=timings #split-by-timings is optional
-#             # Change filepaths into format Django accepts (replace slashes with dots).  Save the filenames in a TESTFILES variable
-#             cat files.txt | tr "/" "." | sed "s/\.py//g" | sed "s/tests\.//g" > circleci_test_files.txt
-#             cat circleci_test_files.txt
-#             TESTFILES=$(cat circleci_test_files.txt)
-#             # Run the tests (TESTFILES) with the reformatted test file names
-#             pipenv run coverage run manage.py test --parallel=8 --verbosity=2 $TESTFILES
-
-#       - store_test_results:
-#           path: test-results  # Storing test results
-
-# workflows:
-#   main:
-#     jobs:
-#       - build
-#----------------------------------
-
+#--------------------------------------------------------------------
 version: 2.1
 
 jobs:
@@ -98,12 +34,51 @@ jobs:
             TESTFILES=$(cat test_files.txt)
             pipenv run coverage run -m pytest -n 8 --maxfail=1 --verbose $TESTFILES
 
-      - run:
-          name: Generate coverage report
-          command: pipenv run coverage xml  # Generates coverage.xml for reporting
+      # - run:
+      #     name: Generate coverage report
+      #     command: pipenv run coverage xml  # Generates coverage.xml for reporting
 
       - store_test_results:
           path: test-results
 
       - store_artifacts:
           path: test/test/report.html
+#---------------------------------execued above----
+
+# jobs:
+#   build:
+#     docker:
+#       - image: cimg/python:3.12.0
+#     parallelism: 4
+#     resource_class: large
+#     steps:
+#       - checkout
+      
+#       - run:
+#           name: Install pipenv
+#           command: pip install pipenv
+
+#       - run:
+#           name: Install dependencies
+#           command: pipenv install --dev
+
+#       - run:
+#           name: List installed packages
+#           command: pipenv run pip list
+
+#       - run:
+#           name: Run tests with coverage
+#           command: |
+#             circleci tests glob "test/**/*.py" > test_files.txt
+#             TESTFILES=$(cat test_files.txt)
+#             pipenv run pytest --cov=my_package --cov-report=xml --cov-report=term -n 8 --maxfail=1 --verbose $TESTFILES
+
+#       - run:
+#           name: Generate coverage report
+#           command: pipenv run coverage xml  # May not be needed if using pytest with --cov
+
+#       - store_test_results:
+#           path: test-results
+
+#       - store_artifacts:
+#           path: test/test/report.html
