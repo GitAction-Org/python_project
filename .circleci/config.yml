@@ -86,7 +86,7 @@ jobs:
             # Glob test files and split them by timings to run in parallel
             circleci tests glob "test/**/*.py" > test_files.txt
             circleci tests run --command="cat test_files.txt | xargs echo" --verbose --split-by=timings
-            
+
             # Run pytest with coverage and parallelization (pytest-xdist)
             cat test_files.txt
             TESTFILES=$(cat test_files.txt)
