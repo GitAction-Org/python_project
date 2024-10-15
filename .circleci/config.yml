@@ -50,35 +50,25 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/python:3.12.0  # Use Python 3.12 image
-    parallelism: 4  # Split jobs across 4 containers
+      - image: cimg/python:3.12.0
+    parallelism: 4  # 4 parallel jobs
     resource_class: large
     steps:
       - checkout
 
       - run:
           name: Install pipenv
-          command: pip install pipenv  # Install pipenv if not already installed
+          command: pip install pipenv
 
       - run:
           name: Install dependencies
-          command: pipenv install --dev  # Install all dev dependencies including coverage
+          command: pipenv install --dev  # Install dependencies
 
       - run:
-          name: List installed packages
-          command: pipenv run pip list  # This will help confirm if coverage is installed
-
-      - run:
-          name: Run tests
+          name: Run tests (split by file name)
           command: |
-            # Glob test files and use CircleCI's split functionality to divide them across parallel jobs
-            # This splits the test files among the 4 parallel containers to avoid running all tests in each container.
+            # Split test files across containers
             pipenv run coverage run -m pytest -n 8 --maxfail=1 --verbose $(circleci tests glob "test/**/*.py" | circleci tests split) --junitxml=test-results/junit.xml
-
-      # Optional: Uncomment to generate a coverage XML report
-      # - run:
-      #     name: Generate coverage report
-      #     command: pipenv run coverage xml  # Generates coverage.xml for reporting
 
       - store_test_results:
           path: test-results
