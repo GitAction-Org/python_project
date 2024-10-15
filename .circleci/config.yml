@@ -82,34 +82,28 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/python:3.12.0  # Python 3.12 image
-    parallelism: 4  # Run 4 parallel jobs
+      - image: cimg/python:3.12.0
+    parallelism: 4
     resource_class: large
     steps:
       - checkout
 
       - run:
           name: Install pipenv
-          command: pip install pipenv
+          command: pip install pipenv pytest-split  # Install pytest-split plugin
 
       - run:
           name: Install dependencies
           command: pipenv install --dev
 
       - run:
-          name: Run tests with proper splitting
+          name: Run tests with pytest-split
           command: |
-            # Collect all test files
             circleci tests glob "test/**/*.py" > test_files.txt
-
-            # Properly split the test files across the 4 parallel jobs
-            TESTFILES=$(circleci tests split test_files.txt)
-
-            # Run pytest only on the test files assigned to this job
-            pipenv run coverage run -m pytest -n 8 --maxfail=1 --verbose $TESTFILES --junitxml=test-results/junit.xml
+            TESTFILES=$(cat test_files.txt)
+            
+            # Use pytest-split to chunk tests within the file
+            pipenv run pytest --maxfail=1 --split=chunk --dist=loadscope --verbose $TESTFILES
 
       - store_test_results:
           path: test-results
-
-      - store_artifacts:
-          path: test/test/report.html
