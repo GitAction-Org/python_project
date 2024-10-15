@@ -79,7 +79,9 @@ jobs:
             TESTFILES=$(circleci tests split test_files.txt)  # This is the corrected part to split test files across parallel jobs.
 
             # Corrected: Now the tests are run only on the split test files specific to this parallel job.
-            pipenv run coverage run -m pytest -n 4 --maxfail=1 --verbose $TESTFILES --junitxml=test-results/junit.xml  # Running only the split test files on this job.
+            # pipenv run coverage run -m pytest -n 4 --maxfail=1 --verbose $TESTFILES --junitxml=test-results/junit.xml  # Running only the split test files on this job.
+            pipenv run coverage run -m pytest -n 8 --maxfail=1 --verbose $TESTFILES --junitxml=test-results/junit.xml
+
 
       # - run:
       #     name: Generate coverage report
