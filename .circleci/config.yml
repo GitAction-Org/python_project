@@ -45,65 +45,65 @@
 #           path: test/test/report.html
 #---------------------------------execued above----
 
-# version: 2.1
-
-# jobs:
-#   build:
-#     docker:
-#       - image: cimg/python:3.12.0
-#     parallelism: 4 
-#     resource_class: large
-#     steps:
-#       - checkout
-
-#       - run:
-#           name: Install pipenv
-#           command: pip install pipenv
-
-#       - run:
-#           name: Install dependencies
-#           command: pipenv install --dev  
-
-#       - run:
-#           name: Run tests (split by file name)
-#           command: |
-#             # Split test files across containers
-#             pipenv run coverage run -m pytest -n 8 --maxfail=1 --verbose $(circleci tests glob "test/**/*.py" | circleci tests split) --junitxml=test-results/junit.xml
-
-#       - store_test_results:
-#           path: test-results
-
-#       - store_artifacts:
-#           path: test/test/report.html
-
-
 version: 2.1
 
 jobs:
   build:
     docker:
       - image: cimg/python:3.12.0
-    parallelism: 4
+    parallelism: 4 
     resource_class: large
     steps:
       - checkout
 
       - run:
           name: Install pipenv
-          command: pip install pipenv pytest-split  # Install pytest-split plugin
+          command: pip install pipenv
 
       - run:
           name: Install dependencies
-          command: pipenv install --dev
+          command: pipenv install --dev  
 
       - run:
-          name: Run tests with pytest-split
+          name: Run tests (split by file name)
           command: |
-            circleci tests glob "test/**/*.py" > test_files.txt
-            TESTFILES=$(cat test_files.txt)
-            
-            # Use pytest-split to chunk tests within the file
-            pipenv run pytest --maxfail=1 --split=chunk --dist=loadscope --verbose $TESTFILES
+            # Split test files across containers
+            pipenv run coverage run -m pytest -n 8 --maxfail=1 --verbose $(circleci tests glob "test/**/*.py" | circleci tests split) --junitxml=test-results/junit.xml
 
       - store_test_results:
           path: test-results
+
+      - store_artifacts:
+          path: test/test/report.html
+
+
+# version: 2.1
+
+# jobs:
+#   build:
+#     docker:
+#       - image: cimg/python:3.12.0
+#     parallelism: 4
+#     resource_class: large
+#     steps:
+#       - checkout
+
+#       - run:
+#           name: Install pipenv
+#           command: pip install pipenv pytest-split  # Install pytest-split plugin
+
+#       - run:
+#           name: Install dependencies
+#           command: pipenv install --dev
+
+#       - run:
+#           name: Run tests with pytest-split
+#           command: |
+#             circleci tests glob "test/**/*.py" > test_files.txt
+#             TESTFILES=$(cat test_files.txt)
+            
+#             # Use pytest-split to chunk tests within the file
+#             pipenv run pytest --maxfail=1 --split=chunk --dist=loadscope --verbose $TESTFILES
+
+#       - store_test_results:
+#           path: test-results
