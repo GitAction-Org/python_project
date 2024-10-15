@@ -34,3 +34,6 @@ def test_get_political_success(mocker):
     response = requests.get(API_URL_POLITICAL)
     assert response.status_code == 200
     assert response.json() == {"data": "mocked_response"}
+
+if __name__ == "__main__":
+    pytest.main()

@@ -68,7 +68,7 @@ jobs:
           name: Run tests (split by file name)
           command: |
             # Split test files across containers
-            pipenv run coverage run -m pytest -n 8 --maxfail=1 --verbose $(circleci tests glob "test/**/*.py" | circleci tests split) --junitxml=test-results/junit.xml
+            pipenv run coverage run -m pytest -n 4 --maxfail=1 --verbose $(circleci tests glob "test/**/*.py" | circleci tests split) --junitxml=test-results/junit.xml
 
       - store_test_results:
           path: test-results

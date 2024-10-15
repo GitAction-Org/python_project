@@ -86,3 +86,6 @@ def test_get_home_valid_data(mocker):
     response = requests.get(API_URL_HOME)
     assert response.status_code == 200
     assert response.json() is not None
+
+if __name__ == "__main__":
+    pytest.main()
