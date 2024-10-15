@@ -51,7 +51,7 @@ jobs:
   build:
     docker:
       - image: cimg/python:3.12.0  # Use Python 3.12 image
-    parallelism: 4
+    parallelism: 4  # Split jobs across 4 containers
     resource_class: large
     steps:
       - checkout
@@ -71,15 +71,9 @@ jobs:
       - run:
           name: Run tests
           command: |
-            # Glob test files - this remains unchanged to list all the test files.
-            circleci tests glob "test/**/*.py" > test_files.txt
-
-            # Split test files across parallel containers
-            TESTFILES=$(circleci tests split test_files.txt)  # Splitting test files across jobs.
-
-            # Run pytest with coverage and parallelization (pytest-xdist)
-            # Each container will run its own portion of the test files, parallelized into 8 threads.
-            pipenv run coverage run -m pytest -n 4 --maxfail=1 --verbose $TESTFILES --junitxml=test-results/junit.xml
+            # Glob test files and use CircleCI's split functionality to divide them across parallel jobs
+            # This splits the test files among the 4 parallel containers to avoid running all tests in each container.
+            pipenv run coverage run -m pytest -n 8 --maxfail=1 --verbose $(circleci tests glob "test/**/*.py" | circleci tests split) --junitxml=test-results/junit.xml
 
       # Optional: Uncomment to generate a coverage XML report
       # - run:
