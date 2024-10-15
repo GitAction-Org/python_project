@@ -72,21 +72,16 @@ jobs:
           name: Run tests
           command: |
             # Glob test files - this remains unchanged to list all the test files.
-            # circleci tests glob "test/**/*.py" > test_files.txt
+            circleci tests glob "test/**/*.py" > test_files.txt
 
-            circleci tests glob "test/**/*.py" | circleci tests run --command=">files.txt xargs echo" --verbose --split-by=timings
+            # Split test files across parallel containers
+            TESTFILES=$(circleci tests split test_files.txt)  # Splitting test files across jobs.
 
+            # Run pytest with coverage and parallelization (pytest-xdist)
+            # Each container will run its own portion of the test files, parallelized into 8 threads.
+            pipenv run coverage run -m pytest -n 4 --maxfail=1 --verbose $TESTFILES --junitxml=test-results/junit.xml
 
-
-            # Corrected: Split test files across parallel containers
-            # This ensures the test files are split across jobs to avoid running the same test multiple times.
-            TESTFILES=$(circleci tests split test_files.txt)  # This is the corrected part to split test files across parallel jobs.
-
-            # Corrected: Now the tests are run only on the split test files specific to this parallel job.
-            # pipenv run coverage run -m pytest -n 4 --maxfail=1 --verbose $TESTFILES --junitxml=test-results/junit.xml  # Running only the split test files on this job.
-            pipenv run coverage run -m pytest -n 8 --maxfail=1 --verbose $TESTFILES --junitxml=test-results/junit.xml
-
-
+      # Optional: Uncomment to generate a coverage XML report
       # - run:
       #     name: Generate coverage report
       #     command: pipenv run coverage xml  # Generates coverage.xml for reporting
